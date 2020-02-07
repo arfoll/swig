@@ -1,191 +1,66 @@
 Below are the changes for the current release.
 See the CHANGES file for changes in older releases.
 See the RELEASENOTES file for a summary of changes in each release.
+Issue # numbers mentioned below can be found on Github. For more details, add
+the issue number to the end of the URL: https://github.com/swig/swig/issues/
 
-Version 3.0.11 (in progress)
-============================
+Version 4.0.2 (in progress)
+===========================
 
-2016-11-02: wsfulton
-            [Python] Issue #816 - fix compilation error when using -extranative and -builtin.
+2020-01-24: etse-dignitas, wsfulton
+            #1533 [C#, D, Java] Fix upcasting for shared_ptr's of templated types.
 
-2016-11-02: liorgold
-            Patch #741 - Add support for C++11 alias templates, see updated CPlusPlus11.html
-            documentation.
+2020-01-16: mcfarljm
+            #1643 #1654 When using -doxygen, fix segfault when nameless parameters or vararg parameters
+            are used.
 
-2016-10-30: myd7349
-            [C#] Patch #740 Add std_array.i for C# for wrapping std::array.
+2020-01-16: mcfarljm
+            #1632 #1659 Fix newline handling for doxygen "///" comments.
 
-            Patch also enhances std::vector<std::wstring> C# wrappers with additional functions
-            (Contains, IndexOf, LastIndexOf and Remove).
+2020-01-14: mcfarljm
+            #1647 #1656 Fix crash handling empty doxygen comments.
 
-2016-10-30: tobilau
-            [Java] Fix wrappers for wstring parameters in director methods to cleanup local
-            ref after director callback has finished.
+2020-01-14: mcfarljm
+            #1608 Improve doxygen support.
+            - Add support for \param[] commands such as: \param[in].
+            - Optional arguments are marked as 'optional' in pydoc.
+            - Improve support for \code commands so that other languages are supported as code blocks.
+              Support added for java, c and py.  For example Python: \code{.py} ... \endcode
+            - Fix doxygen handling of \em and \p tags for Python.
 
-2016-10-23: wsfulton
-            [C#] Add missing csdirectorin VOID_INT_PTR and csdirectorout VOID_INT_PTR typemaps.
+2020-01-13: wsfulton
+            [Python] #1595 Python -builtin constructors silently ignored keyword arguments.
+            Instead of silenty ignoring them, now a "TypeError: f() takes no keyword arguments"
+            exception is thrown if keyword arguments are used. Hence constructors and normal methods/
+            functions behave in the same way. Note, -keyword should be used with -builtin to obtain
+            keyword argument support.
 
-2016-10-23: jiulongw
-            Patch #781 - Fix wrapping of C compound expressions containing char constants
-            in quotes such as:
+2020-01-05: jschueller shadchin
+            [Python] #1670 #1696 Add missing field initializers introduced in python 3.8:
+            tp_vectorcall and tp_print.
 
-              #define H_SUPPRESS_SCALING_MAGIC (('s'<<24) | ('u'<<16) | ('p'<<8) | 'p')
+2020-01-05: friedrichatgc
+            [Octave] #1688 Change swig_this() to use size_t instead of long for compatibility
+            with Windows 64 bit.
 
-              enum DifferentTypes {
-                typecharcompound='A'+1,
-                typecharcompound2='B' << 2
-              };
+2020-01-05: treitmayr
+            [Ruby] #1692 #1689 Add support for Ruby 2.7
 
-2016-10-13: wsfulton
-            [Python] Issue #808 - fix Python pickling and metaclass for builtin wrappers.
+2019-12-30: treitmayr
+            [Ruby] #1653 #1668 Fix code generated when using -globalmodule option.
 
-            The metaclass (SwigPyObjectType) for SWIG objects was not defined in
-            a way that let importlib successfully import the Python wrappers.
-            The pickle module previously failed to pickle objects because it couldn't
-            determine what module the SWIG wrapped objects were in.
+2019-12-29: ZackerySpytz
+            [OCaml] #1686 Fix compilation errors with OCaml 4.09.0.
 
-2016-09-29: wsfulton
-            [Allegrocl, CFFI, GO, Javascript, Ocaml, R, Scilab]
-            Add missing support for the "ret" typemap in a few target languages.
-            The documentation also now has info on the "ret" typemap.
+2019-12-10: wsfulton
+            #1679 Fix parsing of C++11 identifiers with special meaning (final and override) when
+            they are used as part of the scope name of an identifier, such as a namespace name.
 
-2016-09-27: ahmed-usman
-            [xml] Handle template parameters correctly.
+2019-11-26: wsfulton
+            [C#] #1628 'out' or 'ref' used in a cstype typemap was not always stripped out in parts
+            of director code generation.
 
-2016-09-27: dontpanic92
-            [Go] Fix argument names in inherited functions taking more than 8
-            parameters.  Fixes #795.
-
-2016-09-26: smarchetto
-            [Scilab] mlists that map pointers can be given a custom type name.
-
-2016-09-25: wsfulton
-            Patch #793 from q-p to expand exception handling to include std::bad_cast
-            in std_except.i.
-
-2016-09-24: olly
-            [PHP] Fix code generated for feature("director:except") -
-            previously the return value of call_user_function() was ignored and
-            we checked an uninitialised value instead.  Fixes #627.  Based on
-            patch from Sergey Seroshtan.
-
-2016-09-22: wsfulton
-            [Python] More flexible python builtin slots for overloaded C++ function.
-
-            The closure names used for builtin slots are mangled with their functype so
-            that overloaded C++ method names can be used for multiple slots.
-            For example:
-
-              %feature("python:slot", "mp_subscript", functype="binaryfunc") SimpleArray::__getitem__;
-              %feature("python:slot", "sq_item", functype="ssizeargfunc") SimpleArray::__getitem__(Py_ssize_t n);
-
-            will generate closures:
-
-              SWIGPY_SSIZEARGFUNC_CLOSURE(_wrap_SimpleArray___getitem__) /* defines _wrap_SimpleArray___getitem___ssizeargfunc_closure */
-              SWIGPY_BINARYFUNC_CLOSURE(_wrap_SimpleArray___getitem__) /* defines _wrap_SimpleArray___getitem___binaryfunc_closure */
-
-            Previously only one name was defined: _wrap_SimpleArray___getitem___closure.
-            Hence the overloaded __getitem__ method can be used to support both mp_subscript and sq_item slots.
-
-2016-09-17: wsfulton
-            [Python] Fix iterators for containers of NULL pointers (or Python None) when using
-            -builtin. Previously iteration would stop at the first element that was NULL.
-
-2016-09-16: olly
-            [Javascript] Fix SWIG_exception() macro to return from the current
-            function.  Fixes #789, reported by Julien Dutriaux.
-
-2016-09-16: olly
-            [PHP] Fix SWIG_exception() macro to return from the current function.
-            Fixes #240, reported by Sergey Seroshtan.
-
-2016-09-12: xypron
-            [C#] Patch #786 Keyword rename to be CLS compliant by adding an underscore
-            suffix instead of an underscore suffix to the C symbol name. Please use an explicit
-            %rename to rename the symbol with a _ prefix if you want the old symbol name.
-
-            *** POTENTIAL INCOMPATIBILITY ***
-
-2016-09-09: olly
-            [Python] Fix import handling for Python 2.6 to work in a frozen
-            application.  Fixes #145, reported by Thomas Kluyver.
-
-2016-09-02: smarchetto
-            [Scilab] Pointers are mapped to mlist instead of tlist
-            (mlist better for scilab overloading)
-
-2016-09-02: olly
-            [PHP] Fix "out" typemap for member function pointers and "in"
-            typemap for char INPUT[ANY].
-
-2016-09-01: wsfulton
-            [Python] More efficient Python slicing.
-            Call reserve for container types that support it to avoid repeated
-            memory reallocations for new slices or slices that grow in size.
-
-2016-09-01: wsfulton
-            [Python] #771 - Make builtin types hashable by default.
-            Default hash is the underlying C/C++ pointer. This matches up with testing for
-            equivalence (Py_EQ in SwigPyObject_richcompare) which compares the pointers.
-
-2016-08-22: wsfulton
-            [Python] The following builtin slots can be customized like other slots via the
-            "python:<x>" and "python:slot" features where <x> is the appropriate slot name:
-              tp_allocs
-              tp_bases
-              tp_basicsize
-              tp_cache
-              tp_del
-              tp_dealloc
-              tp_flags
-              tp_frees
-              tp_getset
-              tp_is_gc
-              tp_maxalloc
-              tp_methods
-              tp_mro
-              tp_new
-              tp_next
-              tp_prev
-              tp_richcompare
-              tp_subclasses
-              tp_weaklist
-              was_sq_ass_slice
-              was_sq_slice
-
-            A few documentation improvements for slot customization.
-
-2016-08-09: joequant
-            [R] Patch #765 Fix extern "C" header includes for C++ code.
-
-2016-08-05: olly
-            [xml] Fix how the output filename is built to avoid problems when
-            it contains the embedded strings ".c", ".cpp" or ".cxx".
-            Fixes #540 reported by djack42.
-
-2016-07-01: wsfulton
-            Fix corner case of wrapping std::vector of T pointers where a pointer to a pointer of T
-            also exists in the wrapped code. SF Bug 2359417 (967).
-
-2016-06-26: wkalinin
-            [Java, C#] Patch #681 Fix seg fault when ignoring nested classes.
-
-2016-06-25: mromberg
-            [Python] #711 Fix -castmode and conversion of signed and unsigned integer types.
-            See 2015-12-23 CHANGES entry for details of these improvements when they were
-            implemented for the default options (ie not using -castmode).
-
-2016-06-25: ahnolds
-            Patch #730 - Fix %implicitconv for overloaded functions when using
-            -castmode or -fastdispatch options.
-
-            The result is that in all overload cases where there are multiple possibilities
-            with the same number of arguments, the dispatch function will first check for
-            exact (aka non implicit) matches, and then subsequently check for implicit
-            casting matches. This was already happening in the normal dispatch situation,
-            and in the -fastdispatch case two passes through the candidates were happening,
-            just with SWIG_POINTER_IMPLICIT_CONV always set. After this patch, it is not set
-            on the first pass, and then set on the second pass.
-
-2016-06-25: liorgold
-            Patch #727 - Add support for C++11 type aliasing.
+2019-11-01: wsfulton
+            [Python] #1595 Fix bug in support for keyword arguments (kwargs feature or -keyword)
+            when using -builtin. The fix is in the argument error checking when wrapping zero
+            argument constructors only.
